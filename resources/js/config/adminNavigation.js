@@ -56,7 +56,8 @@ export const adminNavigation = [
                 key: 'subject-categories',
                 label: 'Kategori Mata Pelajaran',
                 icon: HiOutlineTableCells,
-                route: null,
+                route: 'subject-categories.index',
+                routePattern: 'subject-categories.*',
             },
             {
                 key: 'subjects',
