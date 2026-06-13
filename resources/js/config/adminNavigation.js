@@ -152,7 +152,8 @@ export const adminNavigation = [
                 key: 'teacher-ranking',
                 label: 'Peringkat Guru',
                 icon: HiOutlineTrophy,
-                route: null,
+                route: 'teacher-rankings.index',
+                routePattern: 'teacher-rankings.*',
             },
             {
                 key: 'student-monitoring',

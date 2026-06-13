@@ -13,6 +13,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TeacherRankingController;
 use App\Http\Controllers\TeachingAssignmentController;
 use App\Http\Controllers\TingkatanController;
 use Illuminate\Foundation\Application;
@@ -55,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::get('student-evaluations/teachers/{teacher}', [StudentEvaluationController::class, 'show'])->name('student-evaluations.teachers.show');
     Route::put('student-evaluations/{evaluation}', [StudentEvaluationController::class, 'update'])->name('student-evaluations.update');
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('teacher-rankings', [TeacherRankingController::class, 'index'])->name('teacher-rankings.index');
 });
 
 require __DIR__.'/auth.php';
