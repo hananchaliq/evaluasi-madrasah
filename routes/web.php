@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SemesterController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('academic-years', AcademicYearController::class)->except(['show']);
     Route::resource('semesters', SemesterController::class)->except(['show']);
     Route::resource('teachers', TeacherController::class)->except(['show']);
+    Route::resource('students', StudentController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';
