@@ -1,5 +1,6 @@
 import Dropdown from '@/Components/Dropdown';
 import FlashMessage from '@/Components/FlashMessage';
+import NotificationBell from '@/Components/Notifications/NotificationBell';
 import Sidebar from '@/Components/Sidebar/Sidebar';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -39,7 +40,8 @@ export default function AdminLayout({ title, children }) {
                             )}
                         </div>
 
-                        <div className="flex shrink-0 items-center">
+                        <div className="flex shrink-0 items-center gap-2">
+                            <NotificationBell />
                             <Dropdown>
                                 <Dropdown.Trigger>
                                     <button

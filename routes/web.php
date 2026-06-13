@@ -5,6 +5,7 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluationPeriodController;
 use App\Http\Controllers\KelasController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\SemesterController;
@@ -59,6 +60,10 @@ Route::middleware('auth')->group(function () {
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('teacher-rankings', [TeacherRankingController::class, 'index'])->name('teacher-rankings.index');
     Route::get('student-monitoring', [StudentMonitoringController::class, 'index'])->name('student-monitoring.index');
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::patch('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 });
 
 require __DIR__.'/auth.php';

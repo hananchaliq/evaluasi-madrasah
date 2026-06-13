@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateEvaluationPeriodRequest;
 use App\Models\AcademicYear;
 use App\Models\EvaluationPeriod;
 use App\Models\Semester;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,10 @@ use Inertia\Response;
 
 class EvaluationPeriodController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+    ) {}
+
     /**
      * Display a listing of evaluation periods.
      */
@@ -96,6 +101,8 @@ class EvaluationPeriodController extends Controller
             EvaluationPeriod::create($request->validated());
         });
 
+        $this->notificationService->syncNotifications();
+
         return redirect()
             ->route('evaluation-periods.index')
             ->with('success', 'Periode evaluasi berhasil ditambahkan.');
@@ -131,6 +138,8 @@ class EvaluationPeriodController extends Controller
 
             $evaluationPeriod->update($request->validated());
         });
+
+        $this->notificationService->syncNotifications();
 
         return redirect()
             ->route('evaluation-periods.index')

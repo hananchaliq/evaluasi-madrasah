@@ -226,7 +226,8 @@ export const adminNavigation = [
                 key: 'notifications',
                 label: 'Notifikasi',
                 icon: HiOutlineBell,
-                route: null,
+                route: 'notifications.index',
+                routePattern: 'notifications.*',
             },
             {
                 key: 'audit-logs',

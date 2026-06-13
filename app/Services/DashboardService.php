@@ -18,6 +18,10 @@ use Illuminate\Support\Collection;
 
 class DashboardService
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+    ) {}
+
     /**
      * Build dashboard payload for the admin home page.
      *
@@ -62,7 +66,10 @@ class DashboardService
             'activeEvaluationPeriod' => $activeEvaluationPeriod,
             'insights' => $this->getInsights($selectedAcademicYearId, $selectedSemesterId),
             'overview' => $this->getOverview(),
-            'alerts' => $this->getAlerts($activeEvaluationPeriod, $selectedAcademicYearId, $selectedSemesterId),
+            'alerts' => array_merge(
+                $this->notificationService->getDashboardNotifications(),
+                $this->getAlerts($activeEvaluationPeriod, $selectedAcademicYearId, $selectedSemesterId),
+            ),
         ];
     }
 

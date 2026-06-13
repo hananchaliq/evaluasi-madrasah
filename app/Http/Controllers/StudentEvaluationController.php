@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateStudentEvaluationRequest;
 use App\Models\Evaluation;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Services\NotificationService;
 use App\Services\StudentEvaluationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class StudentEvaluationController extends Controller
 {
     public function __construct(
         private readonly StudentEvaluationService $studentEvaluationService,
+        private readonly NotificationService $notificationService,
     ) {}
 
     /**
@@ -254,6 +256,8 @@ class StudentEvaluationController extends Controller
         );
 
         if ($request->boolean('submit')) {
+            $this->notificationService->syncNotifications();
+
             return redirect()
                 ->route('student-evaluations.index')
                 ->with('success', 'Evaluasi guru berhasil dikirim.');
