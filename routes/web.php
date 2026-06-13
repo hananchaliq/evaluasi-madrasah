@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KelasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\StudentController;
@@ -33,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('tingkatans', TingkatanController::class)->except(['show']);
+    Route::resource('kelas', KelasController::class)->except(['show']);
     Route::resource('subject-categories', SubjectCategoryController::class)->except(['show']);
     Route::resource('subjects', SubjectController::class)->except(['show']);
     Route::resource('academic-years', AcademicYearController::class)->except(['show']);

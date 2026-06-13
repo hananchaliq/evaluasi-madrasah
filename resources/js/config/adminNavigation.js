@@ -50,7 +50,8 @@ export const adminNavigation = [
                 key: 'kelas',
                 label: 'Kelas',
                 icon: HiOutlineAcademicCap,
-                route: null,
+                route: 'kelas.index',
+                routePattern: 'kelas.*',
             },
             {
                 key: 'subject-categories',
