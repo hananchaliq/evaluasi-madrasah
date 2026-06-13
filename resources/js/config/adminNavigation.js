@@ -118,7 +118,8 @@ export const adminNavigation = [
                 key: 'questions',
                 label: 'Pertanyaan Evaluasi',
                 icon: HiOutlineDocumentText,
-                route: null,
+                route: 'questions.index',
+                routePattern: 'questions.*',
             },
             {
                 key: 'evaluation-periods',

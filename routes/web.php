@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectCategoryController;
@@ -42,6 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('teachers', TeacherController::class)->except(['show']);
     Route::resource('students', StudentController::class)->except(['show']);
     Route::resource('teaching-assignments', TeachingAssignmentController::class)->except(['show']);
+    Route::patch('questions/bulk', [QuestionController::class, 'bulkUpdate'])->name('questions.bulk');
+    Route::patch('questions/{question}/move', [QuestionController::class, 'move'])->name('questions.move');
+    Route::resource('questions', QuestionController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';
