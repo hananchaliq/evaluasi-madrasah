@@ -238,7 +238,8 @@ export const adminNavigation = [
                 key: 'audit-logs',
                 label: 'Log Audit',
                 icon: HiOutlineShieldCheck,
-                route: null,
+                route: 'audit-logs.index',
+                routePattern: 'audit-logs.*',
             },
             {
                 key: 'system-settings',
