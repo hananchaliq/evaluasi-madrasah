@@ -14,14 +14,16 @@ export default function AdminLayout({ title, children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            <Sidebar
-                isOpen={sidebarOpen}
-                onClose={() => setSidebarOpen(false)}
-            />
+        <div className="min-h-screen bg-slate-50 print:bg-white">
+            <div className="print:hidden">
+                <Sidebar
+                    isOpen={sidebarOpen}
+                    onClose={() => setSidebarOpen(false)}
+                />
+            </div>
 
-            <div className="lg:ps-72">
-                <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+            <div className="lg:ps-72 print:ps-0">
+                <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur print:hidden">
                     <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
                         <div className="flex min-w-0 items-center gap-3">
                             <button
@@ -83,8 +85,10 @@ export default function AdminLayout({ title, children }) {
                     </div>
                 </header>
 
-                <main className="px-4 py-6 sm:px-6 lg:px-8">
-                    <FlashMessage />
+                <main className="px-4 py-6 sm:px-6 lg:px-8 print:p-0">
+                    <div className="print:hidden">
+                        <FlashMessage />
+                    </div>
                     {children}
                 </main>
             </div>

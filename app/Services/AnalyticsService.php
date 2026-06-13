@@ -55,6 +55,33 @@ class AnalyticsService
     }
 
     /**
+     * Build statistics payload for printable reports.
+     *
+     * @return array<string, mixed>
+     */
+    public function getStatisticsReport(Request $request, string $groupBy): array
+    {
+        $filterOptions = $this->getFilterOptions();
+        $filters = $this->resolveFilters($request, $filterOptions['academicYears']);
+        $resolvedGroupBy = $this->resolveGroupBy($groupBy);
+        $search = trim((string) $request->input('search', ''));
+
+        return [
+            'filters' => $filters,
+            'search' => $search,
+            'groupBy' => $resolvedGroupBy,
+            'summary' => $this->getSummaryMetrics($filters),
+            'statistics' => $this->getGroupedStatistics(
+                $filters,
+                $resolvedGroupBy,
+                $search,
+                $request,
+            ),
+            ...$filterOptions,
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function getFilterOptions(): array
