@@ -159,7 +159,8 @@ export const adminNavigation = [
                 key: 'student-monitoring',
                 label: 'Pemantauan Siswa',
                 icon: HiOutlineUsers,
-                route: null,
+                route: 'student-monitoring.index',
+                routePattern: 'student-monitoring.*',
             },
             {
                 key: 'report-teacher',

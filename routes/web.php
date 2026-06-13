@@ -10,6 +10,7 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\StudentEvaluationController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentMonitoringController;
 use App\Http\Controllers\SubjectCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
@@ -57,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::put('student-evaluations/{evaluation}', [StudentEvaluationController::class, 'update'])->name('student-evaluations.update');
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('teacher-rankings', [TeacherRankingController::class, 'index'])->name('teacher-rankings.index');
+    Route::get('student-monitoring', [StudentMonitoringController::class, 'index'])->name('student-monitoring.index');
 });
 
 require __DIR__.'/auth.php';
