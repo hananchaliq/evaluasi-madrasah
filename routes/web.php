@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EvaluationPeriodController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
@@ -46,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('questions/bulk', [QuestionController::class, 'bulkUpdate'])->name('questions.bulk');
     Route::patch('questions/{question}/move', [QuestionController::class, 'move'])->name('questions.move');
     Route::resource('questions', QuestionController::class)->except(['show']);
+    Route::resource('evaluation-periods', EvaluationPeriodController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

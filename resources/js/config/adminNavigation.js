@@ -125,7 +125,8 @@ export const adminNavigation = [
                 key: 'evaluation-periods',
                 label: 'Periode Evaluasi',
                 icon: HiOutlineDocumentChartBar,
-                route: null,
+                route: 'evaluation-periods.index',
+                routePattern: 'evaluation-periods.*',
             },
             {
                 key: 'student-evaluations',
