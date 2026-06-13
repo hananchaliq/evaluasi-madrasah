@@ -3,6 +3,7 @@
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\SubjectCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TingkatanController;
@@ -32,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('subject-categories', SubjectCategoryController::class)->except(['show']);
     Route::resource('subjects', SubjectController::class)->except(['show']);
     Route::resource('academic-years', AcademicYearController::class)->except(['show']);
+    Route::resource('semesters', SemesterController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';
