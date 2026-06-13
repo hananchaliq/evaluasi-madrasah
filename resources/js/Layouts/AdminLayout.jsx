@@ -1,4 +1,5 @@
 import Dropdown from '@/Components/Dropdown';
+import FlashMessage from '@/Components/FlashMessage';
 import Sidebar from '@/Components/Sidebar/Sidebar';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -80,7 +81,10 @@ export default function AdminLayout({ title, children }) {
                     </div>
                 </header>
 
-                <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+                <main className="px-4 py-6 sm:px-6 lg:px-8">
+                    <FlashMessage />
+                    {children}
+                </main>
             </div>
         </div>
     );

@@ -13,7 +13,9 @@ export default function SidebarNavGroup({ group, onNavigate }) {
                             item={item}
                             isActive={
                                 item.route !== null &&
-                                route().current(item.route)
+                                (item.routePattern
+                                    ? route().current(item.routePattern)
+                                    : route().current(item.route))
                             }
                             onNavigate={onNavigate}
                         />

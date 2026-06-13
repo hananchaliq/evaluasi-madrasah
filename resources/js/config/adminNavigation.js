@@ -43,7 +43,8 @@ export const adminNavigation = [
                 key: 'tingkatans',
                 label: 'Tingkatan',
                 icon: HiOutlineQueueList,
-                route: null,
+                route: 'tingkatans.index',
+                routePattern: 'tingkatans.*',
             },
             {
                 key: 'kelas',
