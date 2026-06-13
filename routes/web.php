@@ -8,6 +8,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectCategoryController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TeachingAssignmentController;
 use App\Http\Controllers\TingkatanController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('semesters', SemesterController::class)->except(['show']);
     Route::resource('teachers', TeacherController::class)->except(['show']);
     Route::resource('students', StudentController::class)->except(['show']);
+    Route::resource('teaching-assignments', TeachingAssignmentController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

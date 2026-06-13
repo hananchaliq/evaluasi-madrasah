@@ -110,7 +110,8 @@ export const adminNavigation = [
                 key: 'teaching-assignments',
                 label: 'Penugasan Mengajar',
                 icon: HiOutlineClipboardDocumentList,
-                route: null,
+                route: 'teaching-assignments.index',
+                routePattern: 'teaching-assignments.*',
             },
             {
                 key: 'questions',
