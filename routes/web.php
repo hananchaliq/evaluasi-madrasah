@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluationPeriodController;
 use App\Http\Controllers\KelasController;
@@ -53,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('student-evaluations/select-student', [StudentEvaluationController::class, 'selectStudent'])->name('student-evaluations.select-student');
     Route::get('student-evaluations/teachers/{teacher}', [StudentEvaluationController::class, 'show'])->name('student-evaluations.teachers.show');
     Route::put('student-evaluations/{evaluation}', [StudentEvaluationController::class, 'update'])->name('student-evaluations.update');
+    Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 });
 
 require __DIR__.'/auth.php';

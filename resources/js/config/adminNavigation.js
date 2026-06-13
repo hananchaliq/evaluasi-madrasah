@@ -145,7 +145,8 @@ export const adminNavigation = [
                 key: 'analytics',
                 label: 'Analitik',
                 icon: HiOutlineChartBar,
-                route: null,
+                route: 'analytics.index',
+                routePattern: 'analytics.*',
             },
             {
                 key: 'teacher-ranking',
