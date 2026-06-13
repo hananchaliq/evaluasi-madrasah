@@ -7,6 +7,7 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\SemesterController;
+use App\Http\Controllers\StudentEvaluationController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectCategoryController;
 use App\Http\Controllers\SubjectController;
@@ -48,6 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('questions/{question}/move', [QuestionController::class, 'move'])->name('questions.move');
     Route::resource('questions', QuestionController::class)->except(['show']);
     Route::resource('evaluation-periods', EvaluationPeriodController::class)->except(['show']);
+    Route::get('student-evaluations', [StudentEvaluationController::class, 'index'])->name('student-evaluations.index');
+    Route::post('student-evaluations/select-student', [StudentEvaluationController::class, 'selectStudent'])->name('student-evaluations.select-student');
+    Route::get('student-evaluations/teachers/{teacher}', [StudentEvaluationController::class, 'show'])->name('student-evaluations.teachers.show');
+    Route::put('student-evaluations/{evaluation}', [StudentEvaluationController::class, 'update'])->name('student-evaluations.update');
 });
 
 require __DIR__.'/auth.php';
