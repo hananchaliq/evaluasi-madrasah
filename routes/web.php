@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubjectCategoryController;
@@ -30,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tingkatans', TingkatanController::class)->except(['show']);
     Route::resource('subject-categories', SubjectCategoryController::class)->except(['show']);
     Route::resource('subjects', SubjectController::class)->except(['show']);
+    Route::resource('academic-years', AcademicYearController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

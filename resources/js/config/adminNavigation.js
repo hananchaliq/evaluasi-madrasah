@@ -70,7 +70,8 @@ export const adminNavigation = [
                 key: 'academic-years',
                 label: 'Tahun Akademik',
                 icon: HiOutlineDocumentText,
-                route: null,
+                route: 'academic-years.index',
+                routePattern: 'academic-years.*',
             },
             {
                 key: 'semesters',
