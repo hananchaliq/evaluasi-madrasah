@@ -63,7 +63,8 @@ export const adminNavigation = [
                 key: 'subjects',
                 label: 'Mata Pelajaran',
                 icon: HiOutlineBookOpen,
-                route: null,
+                route: 'subjects.index',
+                routePattern: 'subjects.*',
             },
             {
                 key: 'academic-years',

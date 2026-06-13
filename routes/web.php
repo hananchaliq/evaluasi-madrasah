@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubjectCategoryController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TingkatanController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('tingkatans', TingkatanController::class)->except(['show']);
     Route::resource('subject-categories', SubjectCategoryController::class)->except(['show']);
+    Route::resource('subjects', SubjectController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

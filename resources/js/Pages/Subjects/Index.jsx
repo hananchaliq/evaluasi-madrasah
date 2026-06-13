@@ -1,0 +1,311 @@
+import DangerButton from '@/Components/DangerButton';
+import InputLabel from '@/Components/InputLabel';
+import Modal from '@/Components/Modal';
+import Pagination from '@/Components/Pagination';
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import TextInput from '@/Components/TextInput';
+import AdminLayout from '@/Layouts/AdminLayout';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import {
+    HiOutlineMagnifyingGlass,
+    HiOutlinePencilSquare,
+    HiOutlinePlus,
+    HiOutlineTrash,
+} from 'react-icons/hi2';
+
+export default function Index({ subjects, subjectCategories, filters }) {
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    const searchForm = useForm({
+        search: filters.search || '',
+        subject_category_id: filters.subject_category_id || '',
+    });
+
+    const deleteForm = useForm({});
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+
+        router.get(
+            route('subjects.index'),
+            {
+                search: searchForm.data.search || undefined,
+                subject_category_id:
+                    searchForm.data.subject_category_id || undefined,
+            },
+            { preserveState: true, replace: true },
+        );
+    };
+
+    const handleResetSearch = () => {
+        searchForm.setData({
+            search: '',
+            subject_category_id: '',
+        });
+        router.get(route('subjects.index'), {}, { preserveState: true, replace: true });
+    };
+
+    const openDeleteModal = (subject) => {
+        setDeleteTarget(subject);
+        setShowDeleteModal(true);
+    };
+
+    const closeDeleteModal = () => {
+        setDeleteTarget(null);
+        setShowDeleteModal(false);
+    };
+
+    const confirmDelete = () => {
+        if (!deleteTarget) {
+            return;
+        }
+
+        deleteForm.delete(route('subjects.destroy', deleteTarget.id), {
+            preserveScroll: true,
+            onSuccess: () => closeDeleteModal(),
+        });
+    };
+
+    return (
+        <AdminLayout title="Mata Pelajaran">
+            <Head title="Mata Pelajaran" />
+
+            <div className="space-y-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-sm text-slate-600">
+                            Kelola data mata pelajaran madrasah.
+                        </p>
+                    </div>
+                    <Link
+                        href={route('subjects.create')}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                    >
+                        <HiOutlinePlus className="h-4 w-4" />
+                        Tambah Mata Pelajaran
+                    </Link>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+                    <form
+                        onSubmit={handleSearch}
+                        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:items-end"
+                    >
+                        <div className="sm:col-span-2 lg:col-span-1">
+                            <InputLabel
+                                htmlFor="search"
+                                value="Cari Mata Pelajaran"
+                            />
+                            <div className="relative mt-1">
+                                <HiOutlineMagnifyingGlass className="pointer-events-none absolute inset-s-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                                <TextInput
+                                    id="search"
+                                    value={searchForm.data.search}
+                                    onChange={(e) =>
+                                        searchForm.setData(
+                                            'search',
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="block w-full ps-10"
+                                    placeholder="Nama mapel atau kategori..."
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <InputLabel
+                                htmlFor="subject_category_id"
+                                value="Kategori"
+                            />
+                            <select
+                                id="subject_category_id"
+                                value={searchForm.data.subject_category_id}
+                                onChange={(e) =>
+                                    searchForm.setData(
+                                        'subject_category_id',
+                                        e.target.value,
+                                    )
+                                }
+                                className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                            >
+                                <option value="">Semua Kategori</option>
+                                {subjectCategories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.nama}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <PrimaryButton
+                                type="submit"
+                                className="bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700"
+                            >
+                                Cari
+                            </PrimaryButton>
+                            <SecondaryButton
+                                type="button"
+                                onClick={handleResetSearch}
+                            >
+                                Reset
+                            </SecondaryButton>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-slate-200">
+                            <thead className="bg-slate-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                        No
+                                    </th>
+                                    <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                        Nama Mata Pelajaran
+                                    </th>
+                                    <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                        Kategori
+                                    </th>
+                                    <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                        Dibuat
+                                    </th>
+                                    <th className="px-6 py-3 text-end text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                        Aksi
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 bg-white">
+                                {subjects.data.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan="5"
+                                            className="px-6 py-10 text-center text-sm text-slate-500"
+                                        >
+                                            {filters.search ||
+                                            filters.subject_category_id
+                                                ? 'Tidak ada mata pelajaran yang sesuai dengan filter.'
+                                                : 'Belum ada data mata pelajaran.'}
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    subjects.data.map((subject, index) => (
+                                        <tr
+                                            key={subject.id}
+                                            className="hover:bg-slate-50"
+                                        >
+                                            <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                                {(subjects.from ?? 1) + index}
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-800">
+                                                {subject.nama}
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                                                    {subject.subject_category
+                                                        ?.nama ?? '—'}
+                                                </span>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                                {new Date(
+                                                    subject.created_at,
+                                                ).toLocaleDateString('id-ID', {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })}
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4 text-end text-sm">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Link
+                                                        href={route(
+                                                            'subjects.edit',
+                                                            subject.id,
+                                                        )}
+                                                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                                                    >
+                                                        <HiOutlinePencilSquare className="h-4 w-4" />
+                                                        Ubah
+                                                    </Link>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            openDeleteModal(
+                                                                subject,
+                                                            )
+                                                        }
+                                                        className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                    >
+                                                        <HiOutlineTrash className="h-4 w-4" />
+                                                        Hapus
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {subjects.data.length > 0 && (
+                        <div className="border-t border-slate-200 px-6 py-4">
+                            <Pagination links={subjects.links} />
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <Modal
+                show={showDeleteModal}
+                onClose={closeDeleteModal}
+                maxWidth="md"
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold text-slate-800">
+                        Hapus Mata Pelajaran
+                    </h3>
+                    <p className="mt-2 text-sm text-slate-600">
+                        Apakah Anda yakin ingin menghapus mata pelajaran{' '}
+                        <span className="font-semibold text-slate-800">
+                            {deleteTarget?.nama}
+                        </span>
+                        ?
+                        {deleteTarget?.teaching_assignments_count > 0 && (
+                            <span className="mt-2 block text-red-600">
+                                Mata pelajaran ini masih digunakan pada{' '}
+                                {deleteTarget.teaching_assignments_count}{' '}
+                                penugasan mengajar dan tidak dapat dihapus.
+                            </span>
+                        )}
+                        {deleteTarget?.teaching_assignments_count === 0 && (
+                            <span className="mt-2 block">
+                                Tindakan ini tidak dapat dibatalkan.
+                            </span>
+                        )}
+                    </p>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton onClick={closeDeleteModal}>
+                            Batal
+                        </SecondaryButton>
+                        <DangerButton
+                            onClick={confirmDelete}
+                            disabled={
+                                deleteForm.processing ||
+                                deleteTarget?.teaching_assignments_count > 0
+                            }
+                        >
+                            Hapus
+                        </DangerButton>
+                    </div>
+                </div>
+            </Modal>
+        </AdminLayout>
+    );
+}
