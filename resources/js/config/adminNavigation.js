@@ -90,7 +90,8 @@ export const adminNavigation = [
                 key: 'teachers',
                 label: 'Guru',
                 icon: HiOutlineUserGroup,
-                route: null,
+                route: 'teachers.index',
+                routePattern: 'teachers.*',
             },
             {
                 key: 'students',
