@@ -1,21 +1,40 @@
-import Pagination from '@/Components/Pagination';
-import { formatNumber, formatScore } from '@/utils/formatters';
+import Pagination from "@/Components/Pagination";
+import { formatNumber, formatScore } from "@/utils/formatters";
+import { router } from "@inertiajs/react";
+import { HiOutlineEye } from "react-icons/hi2";
 
 const groupByLabels = {
-    teacher: 'Guru',
-    class: 'Kelas',
-    subject: 'Mata Pelajaran',
-    category: 'Kategori Mapel',
-    academic_year: 'Tahun Akademik',
-    semester: 'Semester',
+    teacher: "Guru",
+    class: "Kelas",
+    subject: "Mata Pelajaran",
+    category: "Kategori Mapel",
+    academic_year: "Tahun Akademik",
+    semester: "Semester",
 };
 
-export default function AnalyticsStatisticsTable({ statistics, groupBy }) {
-    const labelHeader = groupByLabels[groupBy] || 'Entitas';
+export default function AnalyticsStatisticsTable({
+    statistics,
+    groupBy,
+    currentFilters,
+}) {
+    const labelHeader = groupByLabels[groupBy] || "Entitas";
+
+    const handleViewDetail = (entityId) => {
+        router.get(
+            route("admin.analytics.index"),
+            {
+                ...currentFilters,
+                group_by: groupBy,
+                focused_entity_id: entityId,
+            },
+            { preserveState: true },
+        );
+    };
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-6 py-4">
+        <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            {/* Header Tabel: Padding disesuaikan agar fleksibel di mobile */}
+            <div className="border-b border-slate-200 px-4 py-4 sm:px-6">
                 <h3 className="text-base font-semibold text-slate-800">
                     Statistik per {labelHeader}
                 </h3>
@@ -24,27 +43,32 @@ export default function AnalyticsStatisticsTable({ statistics, groupBy }) {
                 </p>
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200">
+            {/* Wrapper Scroll Horizontal Otomatis dengan Touch Support */}
+            <div className="w-full overflow-x-auto scrollbar-thin overflow-y-hidden [webkit-overflow-scrolling:touch]">
+                {/* min-w-[800px] memaksa tabel mempertahankan layout kolomnya yang rapi di layar kecil */}
+                <table className="min-w-[800px] w-full divide-y divide-slate-200 table-fixed sm:table-auto">
                     <thead className="bg-slate-50">
                         <tr>
-                            <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                            <th className="px-4 py-3 sm:px-6 text-start text-xs font-semibold uppercase tracking-wider text-slate-600 w-16">
                                 No
                             </th>
-                            <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                            <th className="px-4 py-3 sm:px-6 text-start text-xs font-semibold uppercase tracking-wider text-slate-600 w-1/4">
                                 {labelHeader}
                             </th>
-                            <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                            <th className="px-4 py-3 sm:px-6 text-center text-xs font-semibold uppercase tracking-wider text-slate-600">
                                 Rata-rata Skor
                             </th>
-                            <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                            <th className="px-4 py-3 sm:px-6 text-center text-xs font-semibold uppercase tracking-wider text-slate-600">
                                 Skor Tertinggi
                             </th>
-                            <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                            <th className="px-4 py-3 sm:px-6 text-center text-xs font-semibold uppercase tracking-wider text-slate-600">
                                 Skor Terendah
                             </th>
-                            <th className="px-6 py-3 text-start text-xs font-semibold uppercase tracking-wider text-slate-600">
+                            <th className="px-4 py-3 sm:px-6 text-center text-xs font-semibold uppercase tracking-wider text-slate-600">
                                 Total Respons
+                            </th>
+                            <th className="px-4 py-3 sm:px-6 text-center text-xs font-semibold uppercase tracking-wider text-slate-600 w-24">
+                                Aksi
                             </th>
                         </tr>
                     </thead>
@@ -52,8 +76,8 @@ export default function AnalyticsStatisticsTable({ statistics, groupBy }) {
                         {statistics.data.length === 0 ? (
                             <tr>
                                 <td
-                                    colSpan="6"
-                                    className="px-6 py-10 text-center text-sm text-slate-500"
+                                    colSpan="7"
+                                    className="px-4 py-10 sm:px-6 text-center text-sm text-slate-500"
                                 >
                                     Belum ada data statistik evaluasi untuk
                                     filter ini.
@@ -61,24 +85,46 @@ export default function AnalyticsStatisticsTable({ statistics, groupBy }) {
                             </tr>
                         ) : (
                             statistics.data.map((row, index) => (
-                                <tr key={row.entity_id} className="hover:bg-slate-50">
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                <tr
+                                    key={row.entity_id}
+                                    className="hover:bg-slate-50 transition-colors"
+                                >
+                                    {/* Kolom No */}
+                                    <td className="whitespace-nowrap px-4 py-4 sm:px-6 text-sm text-slate-600 text-start">
                                         {(statistics.from ?? 1) + index}
                                     </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-slate-800">
+                                    {/* Kolom Nama / Label (Bisa membungkus text jika terlalu panjang) */}
+                                    <td className="px-4 py-4 sm:px-6 text-sm font-medium text-slate-800 text-start break-words">
                                         {row.label}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-emerald-700">
+                                    {/* Kolom Rata-rata Skor */}
+                                    <td className="whitespace-nowrap px-4 py-4 sm:px-6 text-sm font-semibold text-emerald-700 text-center">
                                         {formatScore(row.average_score)}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                    {/* Kolom Skor Tertinggi */}
+                                    <td className="whitespace-nowrap px-4 py-4 sm:px-6 text-sm text-slate-600 text-center">
                                         {formatScore(row.highest_score)}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                    {/* Kolom Skor Terendah */}
+                                    <td className="whitespace-nowrap px-4 py-4 sm:px-6 text-sm text-slate-600 text-center">
                                         {formatScore(row.lowest_score)}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                    {/* Kolom Total Respons */}
+                                    <td className="whitespace-nowrap px-4 py-4 sm:px-6 text-sm text-slate-600 text-center">
                                         {formatNumber(row.total_responses)}
+                                    </td>
+                                    {/* Kolom Aksi */}
+                                    <td className="whitespace-nowrap px-4 py-4 sm:px-6 text-center text-sm">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleViewDetail(row.entity_id)
+                                            }
+                                            className="inline-flex items-center gap-1 font-semibold text-emerald-600 hover:text-emerald-900 mx-auto transition-colors"
+                                        >
+                                            <HiOutlineEye className="h-4 w-4" />{" "}
+                                            Detail
+                                        </button>
                                     </td>
                                 </tr>
                             ))
@@ -87,8 +133,9 @@ export default function AnalyticsStatisticsTable({ statistics, groupBy }) {
                 </table>
             </div>
 
+            {/* Pagination Wrapper: Responsif untuk layar kecil */}
             {statistics.data.length > 0 && (
-                <div className="border-t border-slate-200 px-6 py-4">
+                <div className="border-t border-slate-200 px-4 py-4 sm:px-6 flex justify-center sm:justify-end">
                     <Pagination links={statistics.links} />
                 </div>
             )}

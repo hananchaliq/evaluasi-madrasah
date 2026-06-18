@@ -28,7 +28,7 @@ export default function Edit({
 
     const submit = (e) => {
         e.preventDefault();
-        put(route('evaluation-periods.update', evaluationPeriod.id));
+        put(route('admin.evaluation-periods.update', evaluationPeriod.id));
     };
 
     return (
@@ -51,7 +51,7 @@ export default function Edit({
                         academicYears={academicYears}
                         semesters={semesters}
                         submitLabel="Perbarui"
-                        cancelHref={route('evaluation-periods.index')}
+                        cancelHref={route('admin.evaluation-periods.index')}
                         onSubmit={submit}
                     />
                 </div>
