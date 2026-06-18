@@ -25,7 +25,7 @@ export default function NotificationBell() {
     const { unread_count: unreadCount, recent } = notificationSummary;
 
     const markAsRead = (notificationId) => {
-        router.patch(route('notifications.read', notificationId), {}, {
+        router.patch(route('admin.notifications.read', notificationId), {}, {
             preserveScroll: true,
         });
     };
@@ -99,7 +99,7 @@ export default function NotificationBell() {
 
                 <div className="border-t border-slate-100 px-4 py-2">
                     <Link
-                        href={route('notifications.index')}
+                        href={route('admin.notifications.index')}
                         className="block text-center text-sm font-medium text-emerald-700 hover:text-emerald-800"
                     >
                         Lihat Semua Notifikasi

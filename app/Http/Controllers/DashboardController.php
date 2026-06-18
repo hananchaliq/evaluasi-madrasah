@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\DashboardService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __construct(private DashboardService $dashboardService) {}
-
     /**
-     * Display the admin dashboard.
+     * Redirect users to their respective dashboards based on role.
      */
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        return Inertia::render('Dashboard', $this->dashboardService->getData($request));
+        $user = $request->user();
+
+        return match ($user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'student' => redirect()->route('student.dashboard'),
+            'teacher' => redirect()->route('teacher.dashboard'),
+            default => abort(403, 'Peran pengguna tidak dikenali.'),
+        };
     }
 }

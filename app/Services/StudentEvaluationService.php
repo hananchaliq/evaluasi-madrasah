@@ -18,23 +18,13 @@ use RuntimeException;
 class StudentEvaluationService
 {
     /**
-     * Resolve the student profile for the current evaluation session.
+     * Resolve the student profile for the current authenticated user.
      */
-    public function resolveStudent(User $user, ?int $sessionStudentId): ?Student
+    public function resolveStudent(User $user): ?Student
     {
-        $linkedStudent = Student::query()
+        return Student::query()
             ->where('user_id', $user->id)
             ->first();
-
-        if ($linkedStudent) {
-            return $linkedStudent;
-        }
-
-        if ($sessionStudentId) {
-            return Student::query()->find($sessionStudentId);
-        }
-
-        return null;
     }
 
     /**

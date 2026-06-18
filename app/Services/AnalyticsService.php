@@ -9,7 +9,8 @@ use App\Models\Semester;
 use App\Models\Subject;
 use App\Models\SubjectCategory;
 use App\Models\Teacher;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -67,10 +68,10 @@ class AnalyticsService
         $search = trim((string) $request->input('search', ''));
 
         return [
-            'filters' => $filters,
-            'search' => $search,
-            'groupBy' => $resolvedGroupBy,
-            'summary' => $this->getSummaryMetrics($filters),
+            'filters'    => $filters,
+            'search'     => $search,
+            'groupBy'    => $resolvedGroupBy,
+            'summary'    => $this->getSummaryMetrics($filters),
             'statistics' => $this->getGroupedStatistics(
                 $filters,
                 $resolvedGroupBy,
@@ -79,6 +80,35 @@ class AnalyticsService
             ),
             ...$filterOptions,
         ];
+    }
+
+    /**
+     * Public wrapper for resolveFilters – used by ReportService for PDF generation.
+     *
+     * @param  Collection<int, AcademicYear>  $academicYears
+     * @return array<string, int|null>
+     */
+    public function resolveFiltersPublic(Request $request, Collection $academicYears): array
+    {
+        return $this->resolveFilters($request, $academicYears);
+    }
+
+    /**
+     * Return all statistics rows (no pagination) for PDF export.
+     *
+     * @param  array<string, int|null>  $filters
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function getAllStatisticsForPdf(array $filters, string $groupBy, string $search): Collection
+    {
+        return match ($groupBy) {
+            self::GROUP_CLASS          => $this->getClassStatistics($filters, $search),
+            self::GROUP_SUBJECT        => $this->getSubjectStatistics($filters, $search),
+            self::GROUP_CATEGORY       => $this->getCategoryStatistics($filters, $search),
+            self::GROUP_ACADEMIC_YEAR  => $this->getAcademicYearStatistics($filters, $search),
+            self::GROUP_SEMESTER       => $this->getSemesterStatistics($filters, $search),
+            default                    => $this->getTeacherStatistics($filters, $search),
+        };
     }
 
     /**
@@ -389,37 +419,37 @@ class AnalyticsService
     /**
      * @param  array<string, int|null>  $filters
      */
-    private function baseEvaluationQuery(array $filters): Builder
+    private function baseEvaluationQuery(array $filters): EloquentBuilder
     {
         return Evaluation::query()
             ->where('evaluations.status', Evaluation::STATUS_SUBMITTED)
             ->whereNotNull('evaluations.average_score')
             ->when(
                 $filters['academic_year_id'],
-                fn (Builder $query) => $query->where(
+                fn (EloquentBuilder $query) => $query->where(
                     'evaluations.academic_year_id',
                     $filters['academic_year_id'],
                 ),
             )
             ->when(
                 $filters['semester_id'],
-                fn (Builder $query) => $query->where(
+                fn (EloquentBuilder $query) => $query->where(
                     'evaluations.semester_id',
                     $filters['semester_id'],
                 ),
             )
             ->when(
                 $filters['teacher_id'],
-                fn (Builder $query) => $query->where(
+                fn (EloquentBuilder $query) => $query->where(
                     'evaluations.teacher_id',
                     $filters['teacher_id'],
                 ),
             )
             ->when(
                 $filters['kelas_id'],
-                fn (Builder $query) => $query->whereHas(
+                fn (EloquentBuilder $query) => $query->whereHas(
                     'student',
-                    fn (Builder $studentQuery) => $studentQuery->where(
+                    fn (EloquentBuilder $studentQuery) => $studentQuery->where(
                         'kelas_id',
                         $filters['kelas_id'],
                     ),
@@ -427,7 +457,7 @@ class AnalyticsService
             )
             ->when(
                 $filters['subject_id'] || $filters['subject_category_id'],
-                fn (Builder $query) => $query->whereExists(function ($subQuery) use ($filters) {
+                fn (EloquentBuilder $query) => $query->whereExists(function ($subQuery) use ($filters) {
                     $subQuery->select(DB::raw(1))
                         ->from('students')
                         ->join('teaching_assignments', function ($join) {
@@ -456,7 +486,7 @@ class AnalyticsService
     /**
      * @param  array<string, int|null>  $filters
      */
-    private function assignmentScopedQuery(array $filters): Builder
+    private function assignmentScopedQuery(array $filters): QueryBuilder
     {
         return DB::query()
             ->from('evaluations')

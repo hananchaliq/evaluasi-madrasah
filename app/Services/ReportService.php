@@ -43,7 +43,7 @@ class ReportService
             self::TYPE_TEACHER,
             'Laporan Guru',
             'Laporan statistik evaluasi pembelajaran per guru.',
-            'reports.teacher',
+            'admin.reports.teacher',
         );
     }
 
@@ -58,7 +58,7 @@ class ReportService
             self::TYPE_CLASS,
             'Laporan Kelas',
             'Laporan statistik evaluasi pembelajaran per kelas.',
-            'reports.class',
+            'admin.reports.class',
         );
     }
 
@@ -73,7 +73,7 @@ class ReportService
             self::TYPE_SUBJECT,
             'Laporan Mata Pelajaran',
             'Laporan statistik evaluasi pembelajaran per mata pelajaran.',
-            'reports.subject',
+            'admin.reports.subject',
         );
     }
 
@@ -88,8 +88,120 @@ class ReportService
             self::TYPE_CATEGORY,
             'Laporan Kategori',
             'Laporan statistik evaluasi pembelajaran per kategori mata pelajaran.',
-            'reports.category',
+            'admin.reports.category',
         );
+    }
+
+    /**
+     * Build the data array for a PDF download.
+     * Returns the same shape as the Inertia report but with ALL rows (no pagination).
+     *
+     * @return array<string, mixed>
+     */
+    public function getPdfData(Request $request, string $reportType): array
+    {
+        return match ($reportType) {
+            self::TYPE_TEACHER         => $this->buildPdfStatisticsReport($request, AnalyticsService::GROUP_TEACHER, self::TYPE_TEACHER, 'Laporan Guru', 'Laporan statistik evaluasi pembelajaran per guru.', 'admin.reports.teacher'),
+            self::TYPE_CLASS           => $this->buildPdfStatisticsReport($request, AnalyticsService::GROUP_CLASS, self::TYPE_CLASS, 'Laporan Kelas', 'Laporan statistik evaluasi pembelajaran per kelas.', 'admin.reports.class'),
+            self::TYPE_SUBJECT         => $this->buildPdfStatisticsReport($request, AnalyticsService::GROUP_SUBJECT, self::TYPE_SUBJECT, 'Laporan Mata Pelajaran', 'Laporan statistik evaluasi pembelajaran per mata pelajaran.', 'admin.reports.subject'),
+            self::TYPE_CATEGORY        => $this->buildPdfStatisticsReport($request, AnalyticsService::GROUP_CATEGORY, self::TYPE_CATEGORY, 'Laporan Kategori', 'Laporan statistik evaluasi pembelajaran per kategori mata pelajaran.', 'admin.reports.category'),
+            self::TYPE_EVALUATION_PERIOD => $this->buildPdfEvaluationPeriodReport($request),
+            default                    => [],
+        };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPdfStatisticsReport(
+        Request $request,
+        string $groupBy,
+        string $reportType,
+        string $title,
+        string $description,
+        string $routeName,
+    ): array {
+        $filterOptions = $this->getFilterOptions();
+        $filters = $this->analyticsService->resolveFiltersPublic($request, $filterOptions['academicYears']);
+        $resolvedGroupBy = $groupBy;
+        $search = trim((string) $request->input('search', ''));
+
+        $statistics = $this->analyticsService->getAllStatisticsForPdf($filters, $resolvedGroupBy, $search);
+
+        $summaryQuery = \App\Models\Evaluation::query()
+            ->where('status', \App\Models\Evaluation::STATUS_SUBMITTED)
+            ->whereNotNull('average_score');
+
+        if ($filters['academic_year_id']) {
+            $summaryQuery->where('academic_year_id', $filters['academic_year_id']);
+        }
+        if ($filters['semester_id']) {
+            $summaryQuery->where('semester_id', $filters['semester_id']);
+        }
+
+        $summary = [
+            'average_score'   => $this->roundScore($summaryQuery->avg('average_score')),
+            'highest_score'   => $this->roundScore($summaryQuery->max('average_score')),
+            'lowest_score'    => $this->roundScore($summaryQuery->min('average_score')),
+            'total_responses' => (int) (clone $summaryQuery)->count(),
+        ];
+
+        return [
+            'reportType'   => $reportType,
+            'report'       => $this->buildReportMeta($reportType, $title, $description, $routeName),
+            'filterLabels' => $this->buildFilterLabels($filters, $filterOptions),
+            'summary'      => $summary,
+            'statistics'   => $statistics->values()->all(),
+            'filters'      => $filters,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPdfEvaluationPeriodReport(Request $request): array
+    {
+        $filterOptions = $this->getFilterOptions();
+        $filters = $this->resolveEvaluationPeriodFilters($request, $filterOptions['academicYears']);
+        $search = trim((string) $request->input('search', ''));
+
+        $periodQuery = EvaluationPeriod::query()
+            ->with(['academicYear:id,nama', 'semester:id,nama'])
+            ->when($filters['academic_year_id'], fn ($q) => $q->where('academic_year_id', $filters['academic_year_id']))
+            ->when($filters['semester_id'], fn ($q) => $q->where('semester_id', $filters['semester_id']))
+            ->when($filters['evaluation_period_id'], fn ($q) => $q->where('id', $filters['evaluation_period_id']))
+            ->when($search !== '', fn ($q) => $q->where('nama', 'like', '%'.$search.'%'))
+            ->orderByDesc('start_date')
+            ->orderByDesc('id');
+
+        $periods = $periodQuery->get();
+        $statistics = $periods->map(fn (EvaluationPeriod $period) => $this->mapEvaluationPeriodRow($period))->values()->all();
+        $periodIds = $periods->pluck('id');
+
+        $summaryQuery = Evaluation::query()
+            ->where('status', Evaluation::STATUS_SUBMITTED)
+            ->whereNotNull('average_score')
+            ->when(
+                $periodIds->isNotEmpty(),
+                fn ($q) => $q->whereIn('evaluation_period_id', $periodIds),
+                fn ($q) => $q->whereRaw('1 = 0'),
+            );
+
+        $summary = [
+            'average_score'   => $this->roundScore($summaryQuery->avg('average_score')),
+            'highest_score'   => $this->roundScore($summaryQuery->max('average_score')),
+            'lowest_score'    => $this->roundScore($summaryQuery->min('average_score')),
+            'total_responses' => (int) (clone $summaryQuery)->count(),
+        ];
+
+        return [
+            'reportType'   => self::TYPE_EVALUATION_PERIOD,
+            'report'       => $this->buildReportMeta(self::TYPE_EVALUATION_PERIOD, 'Laporan Periode Evaluasi', 'Laporan statistik evaluasi pembelajaran per periode evaluasi.', 'admin.reports.evaluation-period'),
+            'filterLabels' => $this->buildFilterLabels($filters, $filterOptions),
+            'summary'      => $summary,
+            'statistics'   => $statistics,
+            'filters'      => $filters,
+        ];
     }
 
     /**
@@ -155,7 +267,7 @@ class ReportService
                 self::TYPE_EVALUATION_PERIOD,
                 'Laporan Periode Evaluasi',
                 'Laporan statistik evaluasi pembelajaran per periode evaluasi.',
-                'reports.evaluation-period',
+                'admin.reports.evaluation-period',
             ),
             'filters' => $filters,
             'search' => $search,

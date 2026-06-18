@@ -1,15 +1,50 @@
 @import "tailwindcss";
+/* Sasar elemen html dan body agar semua scrollbar di halaman web berubah */
+html, body {
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
+}
 
-@media print {
-    @page {
-        margin: 12mm;
-    }
+/* Chrome, Edge, dan Safari */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+    width: 6px; /* Naikkan dikit ke 6px biar lebih pas dan elegan saat di-click */
+}
 
-    body {
-        background: white !important;
-    }
+html::-webkit-scrollbar-track, 
+body::-webkit-scrollbar-track {
+    background: transparent;
+}
 
-    .no-print {
-        display: none !important;
-    }
+html::-webkit-scrollbar-thumb, 
+body::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb:hover, 
+body::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+.sidebar-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
+}
+
+/* Chrome, Edge, Safari */
+.sidebar-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 999px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
 }

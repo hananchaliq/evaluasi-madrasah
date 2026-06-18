@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Auth\Events\Lockout;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,75 +11,77 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
+   public function authorize(): bool
+   {
+      return true;
+   }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
-    {
-        return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
-        ];
-    }
+   public function rules(): array
+   {
+      return [
+         'email' => ['required', 'string', 'email'],
+         'password' => ['required', 'string'],
+         'role' => ['required', 'string', 'in:student,teacher,admin'],
+      ];
+   }
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws ValidationException
-     */
-    public function authenticate(): void
-    {
-        $this->ensureIsNotRateLimited();
+   public function authenticate(): void
+   {
+      $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+      // 1. Cukup cocokkan email dan password saja ke Auth::attempt agar hash bcrypt bekerja normal
+      $credentials = [
+         'email' => $this->input('email'),
+         'password' => $this->input('password'),
+      ];
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
-        }
+      // 2. Jalankan Autentikasi dasar terlebih dahulu
+      if (!Auth::attempt($credentials, $this->boolean('remember'))) {
+         RateLimiter::hit($this->throttleKey());
 
-        RateLimiter::clear($this->throttleKey());
-    }
+         throw ValidationException::withMessages([
+            'email' => 'Email atau Password yang Anda masukkan salah.',
+         ]);
+      }
 
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws ValidationException
-     */
-    public function ensureIsNotRateLimited(): void
-    {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
-            return;
-        }
+      // 3. Jika password benar, ambil data user yang berhasil login
+      $user = Auth::user();
 
-        event(new Lockout($this));
+      // 4. COCOKKAN ROLE: Apakah role di database sesuai dengan tab role yang dipilih user di frontend?
+      if ($user->role !== $this->input('role')) {
+         // Jika tidak sesuai, paksa logout kembali saat itu juga
+         Auth::logout();
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+         RateLimiter::hit($this->throttleKey());
 
-        throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ]);
-    }
+         throw ValidationException::withMessages([
+            'email' => 'Role akun yang Anda pilih tidak sesuai dengan data sistem.',
+         ]);
+      }
 
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
-    public function throttleKey(): string
-    {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
-    }
+      RateLimiter::clear($this->throttleKey());
+   }
+
+   public function ensureIsNotRateLimited(): void
+   {
+      if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+         return;
+      }
+
+      event(new Lockout($this));
+
+      $seconds = RateLimiter::availableIn($this->throttleKey());
+
+      throw ValidationException::withMessages([
+         'email' => trans('auth.throttle', [
+            'seconds' => $seconds,
+            'minutes' => ceil($seconds / 60),
+         ]),
+      ]);
+   }
+
+   public function throttleKey(): string
+   {
+      return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
+   }
 }

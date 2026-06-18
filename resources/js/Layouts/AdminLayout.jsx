@@ -85,7 +85,7 @@ export default function AdminLayout({ title, children }) {
                     </div>
                 </header>
 
-                <main className="px-4 py-6 sm:px-6 lg:px-8 print:p-0">
+                <main className="px-4 py-6 sm:px-6 lg:px-8 print:p-0 ">
                     <div className="print:hidden">
                         <FlashMessage />
                     </div>
